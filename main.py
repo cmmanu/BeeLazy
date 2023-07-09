@@ -14,6 +14,9 @@ import random
 GROUND_HEIGHT = 100
 """Height of the ground from the screen bottom."""
 
+MAX_OBSTACLES = 5
+"""The maximum number of obstacles in one screen."""
+
 
 class Player(Widget):
     """The player of the game.
@@ -26,24 +29,23 @@ class Player(Widget):
         self.size = (50, 50)
         self.velocity = [0, 0]
         self.score = 0
-        self.pos = (200, GROUND_HEIGHT)
+        self.pos = (200, Window.height / 2)
         with self.canvas:
             self.color = Color(1, 1, 1)
             self.rect = Rectangle(pos=self.pos, size=self.size)
 
     def update(self):
-        self.velocity[1] -= 1.0  # apply gravity
-        self.pos = (self.pos[0] + self.velocity[0], self.pos[1] + self.velocity[1])
+        self.velocity[1] -= 0.5  # apply gravity
+        new_x_pos = self.pos[0] + self.velocity[0]
+        new_y_pos = self.pos[1] + self.velocity[1]
+        # check if max height is reached
+        if new_y_pos >= Window.height - self.size[1]:
+            new_y_pos = Window.height - self.size[1]
+        self.pos = (new_x_pos, new_y_pos)
         self.rect.pos = self.pos
 
-        # keep player on the ground
-        if self.pos[1] < GROUND_HEIGHT:
-            self.pos = (self.pos[0], GROUND_HEIGHT)
-            self.velocity[1] = 0
-        self.rect.pos = self.pos
-
-    def jump(self):
-        self.velocity[1] = 30  # set upward velocity
+    def fly(self):
+        self.velocity[1] = 10  # set upward velocity
 
 
 class Obstacle(Widget):
@@ -58,13 +60,13 @@ class Obstacle(Widget):
         self.size = (50, 50)
         self.passed_obstacles = []
         self.velocity = 5
-        self.pos = (Window.width, GROUND_HEIGHT)
+        self.pos = (Window.width, random.randint(50, Window.height-50))
         with self.canvas:
             self.color = Color(1, 0, 0)
             self.rect = Rectangle(pos=self.pos, size=self.size)
 
     def update(self):
-        self.pos = (self.pos[0] - self.velocity, GROUND_HEIGHT)
+        self.pos = (self.pos[0] - self.velocity, self.pos[1])
         self.rect.pos = self.pos
 
 
@@ -88,8 +90,10 @@ class Game(Widget):
 
     def update(self, dt):
         self.player.update()
-
-        if len(self.obstacles) < 1:
+        obstacles = self.score / 30 or 1
+        if obstacles > MAX_OBSTACLES:
+            obstacles = MAX_OBSTACLES
+        if len(self.obstacles) < obstacles:
             new_obstacle = Obstacle()
             reinforcement = (self.score / 100 ) + 1
             new_obstacle.velocity = reinforcement * random.randint(10, 20)
@@ -108,7 +112,7 @@ class Game(Widget):
                 self.score += 1
                 obstacle.passed_obstacles.append(obstacle)
                 self.score_label.text = f"Score: {self.score}"
-            if self.player.collide_widget(obstacle):
+            if self.player.collide_widget(obstacle) or self.player.pos[1] < - self.player.size[1]:
                 Clock.unschedule(self.update)
                 self.score_label.text = "Game over!"
                 self.theme_song.stop()
@@ -117,8 +121,7 @@ class Game(Widget):
                 self.show_highscore_label()
 
     def on_touch_down(self, *args):
-        if self.player.pos[1] == GROUND_HEIGHT:
-            self.player.jump()
+        self.player.fly()
 
     def show_restart_button(self):
         restart_button = Button(

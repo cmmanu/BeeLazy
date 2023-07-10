@@ -1,3 +1,5 @@
+import os
+
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.widget import Widget
@@ -7,6 +9,7 @@ from kivy.graphics import Rectangle, Color
 from kivy.uix.label import Label
 from kivy.core.audio import SoundLoader
 from kivy.storage.jsonstore import JsonStore
+from kivy.config import Config
 
 import random
 
@@ -60,7 +63,7 @@ class Obstacle(Widget):
         self.size = (50, 50)
         self.passed_obstacles = []
         self.velocity = 5
-        self.pos = (Window.width, random.randint(50, Window.height-50))
+        self.pos = (Window.width, random.randint(50, Window.height - 50))
         with self.canvas:
             self.color = Color(1, 0, 0)
             self.rect = Rectangle(pos=self.pos, size=self.size)
@@ -95,7 +98,7 @@ class Game(Widget):
             obstacles = MAX_OBSTACLES
         if len(self.obstacles) < obstacles:
             new_obstacle = Obstacle()
-            reinforcement = (self.score / 100 ) + 1
+            reinforcement = (self.score / 100) + 1
             new_obstacle.velocity = reinforcement * random.randint(10, 20)
             self.obstacles.append(new_obstacle)
             self.add_widget(self.obstacles[-1])
@@ -112,7 +115,10 @@ class Game(Widget):
                 self.score += 1
                 obstacle.passed_obstacles.append(obstacle)
                 self.score_label.text = f"Score: {self.score}"
-            if self.player.collide_widget(obstacle) or self.player.pos[1] < - self.player.size[1]:
+            if (
+                self.player.collide_widget(obstacle)
+                or self.player.pos[1] < -self.player.size[1]
+            ):
                 Clock.unschedule(self.update)
                 self.score_label.text = "Game over!"
                 self.theme_song.stop()
@@ -125,8 +131,10 @@ class Game(Widget):
 
     def show_restart_button(self):
         restart_button = Button(
-            text="Restart", size_hint=(None, None), size=(200, 100),
-            pos=(Window.width / 2 - 100, Window.height / 2 - 50)
+            text="Restart",
+            size_hint=(None, None),
+            size=(200, 100),
+            pos=(Window.width / 2 - 100, Window.height / 2 - 50),
         )
         restart_button.bind(on_press=self.restart_game)  # Bind on_release event
         self.parent.add_widget(restart_button)
@@ -155,7 +163,10 @@ class Game(Widget):
         Clock.schedule_interval(self.update, 1.0 / 60.0)
 
     def load_highscores(self):
-        self.store = JsonStore("highscores.json")
+        storage = App.get_running_app().user_data_dir
+        # Create a file path within the user data directory
+        file_path = os.path.join(storage, "highscores.json")
+        self.store = JsonStore(file_path)
         if "scores" in self.store:
             self.highscores = self.store.get("scores")["scores"]
         else:
@@ -173,7 +184,7 @@ class Game(Widget):
 class MyApp(App):
     def build(self):
         game = Game()
-        game.theme_song = SoundLoader.load('assets/theme.mp3')  # Load the MP3 file
+        game.theme_song = SoundLoader.load("assets/theme.mp3")  # Load the MP3 file
         if game.theme_song:
             game.theme_song.loop = True  # Set the theme song to loop
             game.theme_song.play()  # Start playing the theme song
@@ -182,4 +193,5 @@ class MyApp(App):
 
 
 if __name__ == "__main__":
+    Config.set("graphics", "orientation", "landscape")
     MyApp().run()

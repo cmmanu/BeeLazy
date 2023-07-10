@@ -33,12 +33,14 @@ class Player(Widget):
         self.velocity = [0, 0]
         self.score = 0
         self.pos = (200, Window.height / 2)
+        self.touched = False
         with self.canvas:
             self.color = Color(1, 1, 1)
             self.rect = Rectangle(pos=self.pos, size=self.size)
 
     def update(self):
-        self.velocity[1] -= 0.5  # apply gravity
+        if not self.touched:
+            self.velocity[1] -= 0.5  # apply gravity
         new_x_pos = self.pos[0] + self.velocity[0]
         new_y_pos = self.pos[1] + self.velocity[1]
         # check if max height is reached
@@ -48,7 +50,11 @@ class Player(Widget):
         self.rect.pos = self.pos
 
     def fly(self):
+        self.touched = True
         self.velocity[1] = 10  # set upward velocity
+
+    def fall(self):
+        self.touched = False
 
 
 class Obstacle(Widget):
@@ -73,23 +79,90 @@ class Obstacle(Widget):
         self.rect.pos = self.pos
 
 
+class StartScreen(Widget):
+    """The start screen of the game.
+
+    This screen appears before the game starts and allows the player to choose whether to start
+    the game or show the highscore.
+    """
+
+    def __init__(self, start_callback, highscore_callback, **kwargs):
+        super(StartScreen, self).__init__(**kwargs)
+        self.start_callback = start_callback
+        self.highscore_callback = highscore_callback
+
+        self.start_button = Button(
+            text="Start Game",
+            size_hint=(None, None),
+            size=(200, 50),
+            pos=(Window.width / 2 - 100, Window.height / 2 - 25),
+        )
+        self.start_button.bind(on_release=self.start_game)
+
+        self.highscore_button = Button(
+            text="Show Highscore",
+            size_hint=(None, None),
+            size=(200, 50),
+            pos=(Window.width / 2 - 100, Window.height / 2 - 100),
+        )
+        self.highscore_button.bind(on_release=self.show_highscore)
+
+        self.add_widget(self.start_button)
+        self.add_widget(self.highscore_button)
+
+    def start_game(self, *args):
+        self.start_callback()
+
+    def show_highscore(self, *args):
+        self.highscore_callback()
+
+
 class Game(Widget):
     player = Player()
     obstacles = []
-    theme_song = None  # Sound object for the theme song
+    theme_song = None
 
     def __init__(self, **kwargs):
         super(Game, self).__init__(**kwargs)
         self.score = 0
         self.highscores = []
         self.store = None
+        self.score_label = None
+        self.start_screen = StartScreen(start_callback=self.start_game, highscore_callback=self.show_highscore)
+        self.add_widget(self.start_screen)
+
+    def start_game(self):
+        self.remove_widget(self.start_screen)
         self.score_label = Label(
             center_x=Window.width / 2, top=Window.height - 20, text="Score: 0"
         )
         self.add_widget(self.score_label)
         self.add_widget(self.player)
         Clock.schedule_interval(self.update, 1.0 / 60.0)
-        self.bind(on_touch_down=self.on_touch_down)
+        self.bind(on_touch_down=self.fly)
+        self.bind(on_touch_up=self.fall)
+        self.load_highscores()
+
+    def remove_start_screen(self):
+        self.remove_widget(self.start_screen)
+
+    def restart_game(self, instance):
+        self.parent.remove_widget(instance)
+        self.clear_widgets()
+        self.player = Player()
+        self.obstacles = []
+        self.theme_song.play()
+        self.score = 0
+        self.score_label = Label(
+            center_x=Window.width / 2, top=Window.height - 20, text="Score: 0"
+        )
+        self.add_widget(self.score_label)
+        self.add_widget(self.player)
+        Clock.schedule_interval(self.update, 1.0 / 60.0)
+
+    def show_highscore(self):
+        # Implement your highscore functionality here
+        pass
 
     def update(self, dt):
         self.player.update()
@@ -126,8 +199,11 @@ class Game(Widget):
                 self.show_restart_button()
                 self.show_highscore_label()
 
-    def on_touch_down(self, *args):
+    def fly(self, *args):
         self.player.fly()
+
+    def fall(self, *args):
+        self.player.fall()
 
     def show_restart_button(self):
         restart_button = Button(
@@ -148,29 +224,14 @@ class Game(Widget):
             highscore_label.text += f"{i + 1}. {score}\n"
         self.add_widget(highscore_label)
 
-    def restart_game(self, instance):
-        self.parent.remove_widget(instance)
-        self.clear_widgets()
-        self.player = Player()
-        self.obstacles = []
-        self.theme_song.play()
-        self.score = 0
-        self.score_label = Label(
-            center_x=Window.width / 2, top=Window.height - 20, text="Score: 0"
-        )
-        self.add_widget(self.score_label)
-        self.add_widget(self.player)
-        Clock.schedule_interval(self.update, 1.0 / 60.0)
-
     def load_highscores(self):
         storage = App.get_running_app().user_data_dir
         # Create a file path within the user data directory
         file_path = os.path.join(storage, "highscores.json")
         self.store = JsonStore(file_path)
+
         if "scores" in self.store:
             self.highscores = self.store.get("scores")["scores"]
-        else:
-            self.highscores = []
 
     def save_highscores(self):
         # Update highscores

@@ -1,5 +1,4 @@
 import os
-
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.widget import Widget
@@ -10,9 +9,9 @@ from kivy.uix.label import Label
 from kivy.core.audio import SoundLoader
 from kivy.storage.jsonstore import JsonStore
 from kivy.config import Config
-
 import random
 
+from start_screen import StartScreen
 
 GROUND_HEIGHT = 100
 """Height of the ground from the screen bottom."""
@@ -79,44 +78,6 @@ class Obstacle(Widget):
         self.rect.pos = self.pos
 
 
-class StartScreen(Widget):
-    """The start screen of the game.
-
-    This screen appears before the game starts and allows the player to choose whether to start
-    the game or show the highscore.
-    """
-
-    def __init__(self, start_callback, highscore_callback, **kwargs):
-        super(StartScreen, self).__init__(**kwargs)
-        self.start_callback = start_callback
-        self.highscore_callback = highscore_callback
-
-        self.start_button = Button(
-            text="Start Game",
-            size_hint=(None, None),
-            size=(200, 50),
-            pos=(Window.width / 2 - 100, Window.height / 2 - 25),
-        )
-        self.start_button.bind(on_release=self.start_game)
-
-        self.highscore_button = Button(
-            text="Show Highscore",
-            size_hint=(None, None),
-            size=(200, 50),
-            pos=(Window.width / 2 - 100, Window.height / 2 - 100),
-        )
-        self.highscore_button.bind(on_release=self.show_highscore)
-
-        self.add_widget(self.start_button)
-        self.add_widget(self.highscore_button)
-
-    def start_game(self, *args):
-        self.start_callback()
-
-    def show_highscore(self, *args):
-        self.highscore_callback()
-
-
 class Game(Widget):
     player = Player()
     obstacles = []
@@ -128,7 +89,13 @@ class Game(Widget):
         self.highscores = []
         self.store = None
         self.score_label = None
-        self.start_screen = StartScreen(start_callback=self.start_game, highscore_callback=self.show_highscore)
+        self.highscore_label = None
+        self.restart_button = None
+        self.start_screen = StartScreen(
+            start_callback=self.start_game,
+            highscore_callback=self.show_highscore_label,
+            back_callback=self.remove_highscore_label,
+        )
         self.add_widget(self.start_screen)
 
     def start_game(self):
@@ -159,10 +126,6 @@ class Game(Widget):
         self.add_widget(self.score_label)
         self.add_widget(self.player)
         Clock.schedule_interval(self.update, 1.0 / 60.0)
-
-    def show_highscore(self):
-        # Implement your highscore functionality here
-        pass
 
     def update(self, dt):
         self.player.update()
@@ -206,23 +169,27 @@ class Game(Widget):
         self.player.fall()
 
     def show_restart_button(self):
-        restart_button = Button(
+        self.restart_button = Button(
             text="Restart",
             size_hint=(None, None),
             size=(200, 100),
-            pos=(Window.width / 2 - 100, Window.height / 2 - 50),
+            pos=(Window.width / 2 - 100, Window.height / 3),
         )
-        restart_button.bind(on_press=self.restart_game)  # Bind on_release event
-        self.parent.add_widget(restart_button)
+        self.restart_button.bind(on_press=self.restart_game)  # Bind on_release event
+        self.parent.add_widget(self.restart_button)
 
     def show_highscore_label(self):
         # Display highscores
-        highscore_label = Label(
-            center_x=Window.width / 2, top=Window.height / 1.5, text="Highscores:\n"
+        self.highscore_label = Label(
+            center_x=Window.width / 2, top=Window.height / 1.5,
+            text="Highscores:\n"
         )
         for i, score in enumerate(self.highscores):
-            highscore_label.text += f"{i + 1}. {score}\n"
-        self.add_widget(highscore_label)
+            self.highscore_label.text += f"{i + 1}. {score}\n"
+        self.add_widget(self.highscore_label)
+
+    def remove_highscore_label(self):
+        self.remove_widget(self.highscore_label)
 
     def load_highscores(self):
         storage = App.get_running_app().user_data_dir

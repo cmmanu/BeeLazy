@@ -9,6 +9,9 @@ from kivy.uix.label import Label
 from kivy.core.audio import SoundLoader
 from kivy.storage.jsonstore import JsonStore
 from kivy.config import Config
+from kivy.uix.image import Image
+from kivy.animation import Animation
+
 import random
 
 from start_screen import StartScreen
@@ -63,9 +66,11 @@ class Obstacle(Widget):
     these obstacles.
     """
 
+    sizes = [(50, 50), (50, 100), (50, 150)]
+
     def __init__(self, **kwargs):
         super(Obstacle, self).__init__(**kwargs)
-        self.size = (50, 50)
+        self.size = self.sizes[random.randint(0, len(self.sizes) - 1)]
         self.passed_obstacles = []
         self.velocity = 5
         self.pos = (Window.width, random.randint(50, Window.height - 50))
@@ -97,8 +102,43 @@ class Game(Widget):
             back_callback=self.remove_highscore_label,
         )
         self.add_widget(self.start_screen)
+        with self.canvas.before:
+            self.bg_image = Image(
+                source="assets/background.jpg", allow_stretch=True, keep_ratio=False
+            )
+            self.bg_image2 = Image(
+                source="assets/background.jpg", allow_stretch=True, keep_ratio=False
+            )
+            self.bind(pos=self.update_background, size=self.update_background)
+
+    def animate_background(self, step: int):
+        anim = Animation(x=-self.bg_image.width, duration=step)
+        anim.bind(on_complete=self.reset_background)
+        anim.start(self.bg_image)
+
+    def animate_background2(self, step: int):
+        anim = Animation(x=-self.bg_image2.width, duration=step)
+        anim.bind(on_complete=self.reset_background2)
+        anim.start(self.bg_image2)
+
+    def reset_background(self, *args):
+        self.bg_image.size = self.size
+        self.bg_image.pos = (Window.width, 0)
+        self.animate_background(20)
+
+    def reset_background2(self, *args):
+        self.bg_image2.size = self.size
+        self.bg_image2.pos = (Window.width, 0)
+        self.animate_background2(20)
+
+    def update_background(self, *args):
+        self.bg_image.size = self.size
+        self.bg_image2.size = self.size
+        self.bg_image2.pos = (Window.width, 0)
 
     def start_game(self):
+        self.animate_background(10)
+        self.animate_background2(20)
         self.remove_widget(self.start_screen)
         self.score_label = Label(
             center_x=Window.width / 2, top=Window.height - 20, text="Score: 0"
@@ -181,8 +221,7 @@ class Game(Widget):
     def show_highscore_label(self):
         # Display highscores
         self.highscore_label = Label(
-            center_x=Window.width / 2, top=Window.height / 1.5,
-            text="Highscores:\n"
+            center_x=Window.width / 2, top=Window.height / 1.5, text="Highscores:\n"
         )
         for i, score in enumerate(self.highscores):
             self.highscore_label.text += f"{i + 1}. {score}\n"
@@ -215,7 +254,7 @@ class MyApp(App):
         game.theme_song = SoundLoader.load("assets/theme.mp3")  # Load the MP3 file
         if game.theme_song:
             game.theme_song.loop = True  # Set the theme song to loop
-            game.theme_song.play()  # Start playing the theme song
+            # game.theme_song.play()  # Start playing the theme song
         game.load_highscores()
         return game
 

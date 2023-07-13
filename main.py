@@ -103,42 +103,21 @@ class Game(Widget):
         )
         self.add_widget(self.start_screen)
         with self.canvas.before:
-            self.bg_image = Image(
-                source="assets/background.jpg", allow_stretch=True, keep_ratio=False
-            )
-            self.bg_image2 = Image(
-                source="assets/background.jpg", allow_stretch=True, keep_ratio=False
-            )
+            self.img = Image(source="assets/background.jpg", allow_stretch=True, keep_ratio=False)
+            self.texture = self.img.texture
+            self.texture.wrap = 'repeat'
+            self.rect_1 = Rectangle(texture=self.texture, size=self.size, pos=self.pos)
             self.bind(pos=self.update_background, size=self.update_background)
 
-    def animate_background(self, step: int):
-        anim = Animation(x=-self.bg_image.width, duration=step)
-        anim.bind(on_complete=self.reset_background)
-        anim.start(self.bg_image)
-
-    def animate_background2(self, step: int):
-        anim = Animation(x=-self.bg_image2.width, duration=step)
-        anim.bind(on_complete=self.reset_background2)
-        anim.start(self.bg_image2)
-
-    def reset_background(self, *args):
-        self.bg_image.size = self.size
-        self.bg_image.pos = (Window.width, 0)
-        self.animate_background(20)
-
-    def reset_background2(self, *args):
-        self.bg_image2.size = self.size
-        self.bg_image2.pos = (Window.width, 0)
-        self.animate_background2(20)
+    def txupdate(self, *l):
+        t = Clock.get_boottime()
+        self.rect_1.tex_coords = -(t * 0.05), 0, -(t * 0.05 + 1), 0,  -(t * 0.05 + 1), -1, -(t * 0.05), -1
 
     def update_background(self, *args):
-        self.bg_image.size = self.size
-        self.bg_image2.size = self.size
-        self.bg_image2.pos = (Window.width, 0)
+        self.rect_1.size = self.size
 
     def start_game(self):
-        self.animate_background(10)
-        self.animate_background2(20)
+        Clock.schedule_interval(self.txupdate, 0)
         self.remove_widget(self.start_screen)
         self.score_label = Label(
             center_x=Window.width / 2, top=Window.height - 20, text="Score: 0"
@@ -254,7 +233,7 @@ class MyApp(App):
         game.theme_song = SoundLoader.load("assets/theme.mp3")  # Load the MP3 file
         if game.theme_song:
             game.theme_song.loop = True  # Set the theme song to loop
-            # game.theme_song.play()  # Start playing the theme song
+            game.theme_song.play()  # Start playing the theme song
         game.load_highscores()
         return game
 

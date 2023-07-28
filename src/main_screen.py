@@ -83,7 +83,7 @@ class Obstacle(Widget):
 
 class Game(Widget):
     player = Player()
-    obstacles = []
+    obstacles: list[Obstacle] = []
     theme_song = None
 
     def __init__(self, **kwargs):

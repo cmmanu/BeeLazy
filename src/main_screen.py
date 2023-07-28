@@ -122,7 +122,6 @@ class Game(Widget):
             self.bind(pos=self.update_background, size=self.update_background)
 
     def txupdate(self):
-        """Updates the background position."""
 
         boot_time = Clock.get_boottime()
         self.rect_1.tex_coords = (

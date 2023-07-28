@@ -25,3 +25,13 @@ jobs:
       run: |
         source .venv/bin/activate
         poetry run pylint src
+      # Fail the workflow if Pylint returns a non-zero exit code (indicating linting errors/warnings)
+      if: ${{ failure() }}
+      continue-on-error: true  # Continue to the next step even if pylint returns a non-zero exit code
+
+    - name: Check Pylint results
+      run: |
+        # This step will run only if Pylint returned a non-zero exit code (i.e., there were linting errors/warnings)
+        echo "Pylint found errors or warnings."
+        exit 1  # Explicitly exit with a non-zero code to fail the workflow
+      if: ${{ failure() }}  # Run this step only if the previous step (Run Pylint) failed

@@ -23,4 +23,5 @@ jobs:
     - name: Analysing the code with pylint
       if: success() 
       run: |
-        pylint src
+        source .venv/bin/activate
+        poetry run pylint src

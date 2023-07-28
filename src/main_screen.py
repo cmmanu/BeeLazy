@@ -271,6 +271,7 @@ class Game(Widget):
             self.highscores = self.store.get("scores")["scores"]
 
     def save_highscores(self):
+        """Saves the highscore in the store."""
 
         # Update highscores
         self.highscores.append(self.score)

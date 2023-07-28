@@ -1,3 +1,5 @@
+"""Implements classes of the main screen of the game."""
+
 import os
 import random
 
@@ -28,7 +30,7 @@ class Player(Widget):
     """
 
     def __init__(self, **kwargs):
-        super(Player, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.size = (50, 50)
         self.velocity = [0, 0]
         self.score = 0
@@ -39,6 +41,8 @@ class Player(Widget):
             self.rect = Rectangle(pos=self.pos, size=self.size)
 
     def update(self):
+        """Updates the players position."""
+
         if not self.touched:
             self.velocity[1] -= 0.5  # apply gravity
         new_x_pos = self.pos[0] + self.velocity[0]
@@ -50,10 +54,12 @@ class Player(Widget):
         self.rect.pos = self.pos
 
     def fly(self):
+        """Sets the y velocity to let the player fly."""
         self.touched = True
         self.velocity[1] = 10  # set upward velocity
 
     def fall(self):
+        """Does not set any y velocity to let the player fall."""
         self.touched = False
 
 
@@ -67,7 +73,7 @@ class Obstacle(Widget):
     sizes = [(50, 50), (50, 100), (50, 150)]
 
     def __init__(self, **kwargs):
-        super(Obstacle, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.size = self.sizes[random.randint(0, len(self.sizes) - 1)]
         self.passed_obstacles = []
         self.velocity = 5
@@ -77,17 +83,23 @@ class Obstacle(Widget):
             self.rect = Rectangle(pos=self.pos, size=self.size)
 
     def update(self):
+        """Updates the postion of the obstacle."""
         self.pos = (self.pos[0] - self.velocity, self.pos[1])
         self.rect.pos = self.pos
 
 
 class Game(Widget):
+    """
+    The main game object where its methods uses obstacles and the player and updates them
+    periodically.
+    """
+
     player = Player()
     obstacles: list[Obstacle] = []
     theme_song = None
 
     def __init__(self, **kwargs):
-        super(Game, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.score = 0
         self.highscores = []
         self.store = None
@@ -109,23 +121,33 @@ class Game(Widget):
             self.rect_1 = Rectangle(texture=self.texture, size=self.size, pos=self.pos)
             self.bind(pos=self.update_background, size=self.update_background)
 
-    def txupdate(self, *l):
-        t = Clock.get_boottime()
+    def txupdate(self):
+        """Updates the background position."""
+
+        boot_time = Clock.get_boottime()
         self.rect_1.tex_coords = (
-            -(t * 0.05),
+            -(boot_time * 0.05),
             0,
-            -(t * 0.05 + 1),
+            -(boot_time * 0.05 + 1),
             0,
-            -(t * 0.05 + 1),
+            -(boot_time * 0.05 + 1),
             -1,
-            -(t * 0.05),
+            -(boot_time * 0.05),
             -1,
         )
 
-    def update_background(self, *args):
+    def update_background(self):
+        """Updates the size of the background after initial creation."""
         self.rect_1.size = self.size
 
     def start_game(self):
+        """
+        Method to call to start the game.
+
+        Adds all relevant widgets. Initially there is the possibility to start the game or the show
+        the highscore.
+        """
+
         Clock.schedule_interval(self.txupdate, 0)
         self.remove_widget(self.start_screen)
         self.score_label = Label(
@@ -139,9 +161,13 @@ class Game(Widget):
         self.load_highscores()
 
     def remove_start_screen(self):
+        """Removes the start screen as widget."""
+
         self.remove_widget(self.start_screen)
 
     def restart_game(self, instance):
+        """Restarts the game by clearing and resetting everything."""
+
         self.parent.remove_widget(instance)
         self.clear_widgets()
         self.player = Player()
@@ -155,11 +181,16 @@ class Game(Widget):
         self.add_widget(self.player)
         Clock.schedule_interval(self.update, 1.0 / 60.0)
 
-    def update(self, dt):
+    def update(self):
+        """
+        Updates the game by updating the player and obstacles.
+
+        Adds obstacles to the screen and also updates the score.
+        """
+
         self.player.update()
         obstacles = self.score / 30 or 1
-        if obstacles > MAX_OBSTACLES:
-            obstacles = MAX_OBSTACLES
+        obstacles = min(obstacles, MAX_OBSTACLES)
         if len(self.obstacles) < obstacles:
             new_obstacle = Obstacle()
             reinforcement = (self.score / 100) + 1
@@ -190,13 +221,19 @@ class Game(Widget):
                 self.show_restart_button()
                 self.show_highscore_label()
 
-    def fly(self, *args):
+    def fly(self):
+        """Activates flying mode for the player."""
+
         self.player.fly()
 
-    def fall(self, *args):
+    def fall(self):
+        """Activates fall mode for the player."""
+
         self.player.fall()
 
     def show_restart_button(self):
+        """Adds the restart button after a game over."""
+
         self.restart_button = Button(
             text="Restart",
             size_hint=(None, None),
@@ -207,6 +244,8 @@ class Game(Widget):
         self.parent.add_widget(self.restart_button)
 
     def show_highscore_label(self):
+        """Adds the highscore label in game."""
+
         # Display highscores
         self.highscore_label = Label(
             center_x=Window.width / 2, top=Window.height / 1.5, text="Highscores:\n"
@@ -216,9 +255,13 @@ class Game(Widget):
         self.add_widget(self.highscore_label)
 
     def remove_highscore_label(self):
+        """Removes the highscore label when gaming over."""
+
         self.remove_widget(self.highscore_label)
 
     def load_highscores(self):
+        """Loads the high score when opening the game."""
+
         storage = App.get_running_app().user_data_dir
         # Create a file path within the user data directory
         file_path = os.path.join(storage, "../highscores.json")
@@ -228,6 +271,8 @@ class Game(Widget):
             self.highscores = self.store.get("scores")["scores"]
 
     def save_highscores(self):
+        """Saves the highscore in the store."""
+
         # Update highscores
         self.highscores.append(self.score)
         self.highscores.sort(reverse=True)
@@ -236,7 +281,9 @@ class Game(Widget):
         self.store.put("scores", scores=self.highscores)
 
 
-class MyApp(App):
+class BeeLazy(App):
+    """Class that builds the game and starts the theme song."""
+
     def build(self):
         game = Game()
         game.theme_song = SoundLoader.load("../assets/theme.mp3")  # Load the MP3 file

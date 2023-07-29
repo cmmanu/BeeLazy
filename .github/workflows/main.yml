@@ -1,10 +1,10 @@
-name: Pylint
+name: Python linting and type checking with Pylint and Mypy
 
 on: [push]
 
 jobs:
   build:
-    name: pylint
+    name: linting and type checking
     runs-on: ubuntu-latest
 
     steps:
@@ -25,3 +25,7 @@ jobs:
       run: |
         source .venv/bin/activate
         poetry run pylint src
+    - name: Run Mypy
+      run: |
+        source .venv/bin/activate
+        poetry run mypy src

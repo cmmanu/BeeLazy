@@ -44,22 +44,25 @@ class StartScreen(Widget):
 
         self.create_start_screen()
 
-    def create_start_screen(self):
+    def create_start_screen(self, *args):
         """Creates the start screen on start up."""
 
+        del args
         self.back_callback()
         self.remove_widget(self.back_button)
         self.add_widget(self.start_button)
         self.add_widget(self.highscore_button)
 
-    def start_game(self):
+    def start_game(self, *args):
         """Triggers the main screen by starting the game."""
 
+        del args
         self.start_callback()
 
-    def show_highscore(self):
+    def show_highscore(self, *args):
         """Shows the highscore on the start screen."""
 
+        del args
         self.add_widget(self.back_button)
         self.remove_widget(self.start_button)
         self.remove_widget(self.highscore_button)

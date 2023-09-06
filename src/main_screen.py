@@ -121,9 +121,10 @@ class Game(Widget):
             self.rect_1 = Rectangle(texture=self.texture, size=self.size, pos=self.pos)
             self.bind(pos=self.update_background, size=self.update_background)
 
-    def txupdate(self):
+    def txupdate(self, *args):
         """Updates the background position."""
 
+        del args
         boot_time = Clock.get_boottime()
         self.rect_1.tex_coords = (
             -(boot_time * 0.05),
@@ -136,8 +137,10 @@ class Game(Widget):
             -1,
         )
 
-    def update_background(self):
+    def update_background(self, *args):
         """Updates the size of the background after initial creation."""
+
+        del args
         self.rect_1.size = self.size
 
     def start_game(self):
@@ -181,13 +184,14 @@ class Game(Widget):
         self.add_widget(self.player)
         Clock.schedule_interval(self.update, 1.0 / 60.0)
 
-    def update(self):
+    def update(self, *args):
         """
         Updates the game by updating the player and obstacles.
 
         Adds obstacles to the screen and also updates the score.
         """
 
+        del args
         self.player.update()
         obstacles = self.score / 30 or 1
         obstacles = min(obstacles, MAX_OBSTACLES)
@@ -221,14 +225,16 @@ class Game(Widget):
                 self.show_restart_button()
                 self.show_highscore_label()
 
-    def fly(self):
+    def fly(self, *args):
         """Activates flying mode for the player."""
 
+        del args
         self.player.fly()
 
-    def fall(self):
+    def fall(self, *args):
         """Activates fall mode for the player."""
 
+        del args
         self.player.fall()
 
     def show_restart_button(self):

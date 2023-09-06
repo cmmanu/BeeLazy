@@ -59,7 +59,7 @@ class Player(Widget):
         self.velocity[1] = 10  # set upward velocity
 
     def fall(self):
-        """Does not set any y velocity to let the player fall."""
+        """Does not set y velocity to let the player fall."""
         self.touched = False
 
 

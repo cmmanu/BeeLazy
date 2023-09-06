@@ -1,10 +1,10 @@
-name: Pylint
+name: Python linting and type checking with Pylint and Mypy
 
 on: [push]
 
 jobs:
   build:
-    name: pylint
+    name: linting and type checking
     runs-on: ubuntu-latest
 
     steps:
@@ -21,16 +21,13 @@ jobs:
         source .venv/bin/activate
         poetry install
     - name: Analysing the code with pylint
+      if: success() 
       run: |
         source .venv/bin/activate
         poetry run pylint src
-      # Fail the workflow if Pylint returns a non-zero exit code (indicating linting errors/warnings)
-      if: ${{ failure() }}
-      continue-on-error: true  # Continue to the next step even if pylint returns a non-zero exit code
-
-    - name: Check Pylint results
+      continue-on-error: true
+    - name: Run Mypy
       run: |
-        # This step will run only if Pylint returned a non-zero exit code (i.e., there were linting errors/warnings)
-        echo "Pylint found errors or warnings."
-        exit 1  # Explicitly exit with a non-zero code to fail the workflow
-      if: ${{ failure() }}  # Run this step only if the previous step (Run Pylint) failed
+        source .venv/bin/activate
+        poetry run mypy src
+      continue-on-error: true

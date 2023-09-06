@@ -292,7 +292,7 @@ class BeeLazy(App):
 
     def build(self):
         game = Game()
-        game.theme_song = SoundLoader.load("../assets/theme.mp3")  # Load the MP3 file
+        game.theme_song = SoundLoader.load("assets/theme.mp3")  # Load the MP3 file
         if game.theme_song:
             game.theme_song.loop = True  # Set the theme song to loop
             game.theme_song.play()  # Start playing the theme song

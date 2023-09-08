@@ -183,6 +183,7 @@ class Game(Widget):
         self.add_widget(self.score_label)
         self.add_widget(self.player)
         Clock.schedule_interval(self.update, 1.0 / 60.0)
+        Clock.schedule_interval(self.txupdate, 0)
 
     def update(self, *args):
         """
@@ -219,11 +220,13 @@ class Game(Widget):
                 or self.player.pos[1] < -self.player.size[1]
             ):
                 Clock.unschedule(self.update)
+                Clock.unschedule(self.txupdate)
                 self.score_label.text = "Game over!"
                 self.theme_song.stop()
                 self.save_highscores()
                 self.show_restart_button()
                 self.show_highscore_label()
+
 
     def fly(self, *args):
         """Activates flying mode for the player."""
@@ -241,7 +244,7 @@ class Game(Widget):
         """Adds the restart button after a game over."""
 
         self.restart_button = Button(
-            text="Restart",
+            text="Retry",
             size_hint=(None, None),
             size=(200, 100),
             pos=(Window.width / 2 - 100, Window.height / 3),

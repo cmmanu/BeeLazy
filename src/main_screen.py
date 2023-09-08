@@ -88,6 +88,28 @@ class Obstacle(Widget):
         self.rect.pos = self.pos
 
 
+class PowerUp(Widget):
+    """The PowerUp for the player to gain.
+
+    PowerUps will appear on the right side of the screen. The main goal for a player is to gain
+    those PowerUps to reach an invincible state for a bit of a time.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.size = (50, 50)
+        self.velocity = 7
+        self.pos = (Window.width, random.randint(50, Window.height - 50))
+        with self.canvas:
+            self.color = Color(1, 1, 0)
+            self.rect = Rectangle(pos=self.pos, size=self.size)
+
+    def update(self):
+        """Updates the postion of the PowerUp."""
+        self.pos = (self.pos[0] - self.velocity, self.pos[1])
+        self.rect.pos = self.pos
+
+
 class Game(Widget):
     """
     The main game object where its methods uses obstacles and the player and updates them
@@ -96,6 +118,7 @@ class Game(Widget):
 
     player = Player()
     obstacles: list[Obstacle] = []
+    power_ups: list[PowerUp] = []
     theme_song = None
 
     def __init__(self, **kwargs):
@@ -175,6 +198,7 @@ class Game(Widget):
         self.clear_widgets()
         self.player = Player()
         self.obstacles = []
+        self.power_ups = []
         self.theme_song.play()
         self.score = 0
         self.score_label = Label(
@@ -194,6 +218,20 @@ class Game(Widget):
 
         del args
         self.player.update()
+
+        # small change for a power up to pop up on the screen
+        if random.randint(0, 1400) == 0 and len(self.power_ups) < 1:
+            new_powerup = PowerUp()
+            self.power_ups.append(new_powerup)
+            self.add_widget(new_powerup)
+
+        for power_up in self.power_ups:
+            power_up.update()
+            if power_up.pos[0] < -power_up.size[0]:
+                self.remove_widget(power_up)
+                self.power_ups.remove(power_up)
+            # include invincible state for a player for 4s
+
         obstacles = self.score / 30 or 1
         obstacles = min(obstacles, MAX_OBSTACLES)
         if len(self.obstacles) < obstacles:

@@ -49,10 +49,13 @@ class StartScreen(Widget):
         # update the button width in respect to its text after rendering
         Clock.schedule_once(self.set_button_width, 0)
 
-    def set_button_width(self, dt):
-        del dt
+    def set_button_width(self, args):
+        """Sets the button width to its text width.
+
+        Always takes the largest text from all buttons."""
+        del args
         for child in self.children:
-            max_width = max([c.texture_size[0] for c in self.children])
+            max_width = max(c.texture_size[0] for c in self.children)
             if max_width > self.text_width:
                 self.text_width = max_width
             child.size_hint_x = None
@@ -84,4 +87,3 @@ class StartScreen(Widget):
 
         # update the button width in respect to its text after rendering
         Clock.schedule_once(self.set_button_width, 0)
-

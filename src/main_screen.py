@@ -14,6 +14,7 @@ from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 
+from src.bee import Bee
 from src.start_screen import StartScreen
 
 GROUND_HEIGHT = 100
@@ -23,50 +24,10 @@ MAX_OBSTACLES = 5
 """The maximum number of obstacles in one screen."""
 
 
-class Player(Widget):
-    """The player of the game.
-
-    The player is the main figure in the game that needs to jump over obstacles.
-    """
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.size = (50, 50)
-        self.velocity = [0, 0]
-        self.score = 0
-        self.pos = (200, Window.height / 2)
-        self.touched = False
-        with self.canvas:
-            self.color = Color(1, 1, 1)
-            self.rect = Rectangle(pos=self.pos, size=self.size)
-
-    def update(self):
-        """Updates the players position."""
-
-        if not self.touched:
-            self.velocity[1] -= 0.5  # apply gravity
-        new_x_pos = self.pos[0] + self.velocity[0]
-        new_y_pos = self.pos[1] + self.velocity[1]
-        # check if max height is reached
-        if new_y_pos >= Window.height - self.size[1]:
-            new_y_pos = Window.height - self.size[1]
-        self.pos = (new_x_pos, new_y_pos)
-        self.rect.pos = self.pos
-
-    def fly(self):
-        """Sets the y velocity to let the player fly."""
-        self.touched = True
-        self.velocity[1] = 10  # set upward velocity
-
-    def fall(self):
-        """Does not set y velocity to let the player fall."""
-        self.touched = False
-
-
 class Obstacle(Widget):
-    """The obstacle for the player to doge.
+    """The obstacle for the bee to doge.
 
-    Obstacles will appear on the right side of the screen. The main goal for a player is to pass
+    Obstacles will appear on the right side of the screen. The main goal for the bee is to pass
     these obstacles.
     """
 
@@ -89,9 +50,9 @@ class Obstacle(Widget):
 
 
 class PowerUp(Widget):
-    """The PowerUp for the player to gain.
+    """The PowerUp for the bee to gain.
 
-    PowerUps will appear on the right side of the screen. The main goal for a player is to gain
+    PowerUps will appear on the right side of the screen. The main goal for the bee is to gain
     those PowerUps to reach an invincible state for a bit of a time.
     """
 
@@ -112,11 +73,11 @@ class PowerUp(Widget):
 
 class Game(Widget):
     """
-    The main game object where its methods uses obstacles and the player and updates them
+    The main game object where its methods uses obstacles and the bee and updates them
     periodically.
     """
 
-    player = Player()
+    bee = Bee()
     obstacles: list[Obstacle] = []
     power_ups: list[PowerUp] = []
     theme_song = None
@@ -180,7 +141,7 @@ class Game(Widget):
             center_x=Window.width / 2, top=Window.height - 20, text="Score: 0"
         )
         self.add_widget(self.score_label)
-        self.add_widget(self.player)
+        self.add_widget(self.bee)
         Clock.schedule_interval(self.update, 1.0 / 60.0)
         self.bind(on_touch_down=self.fly)
         self.bind(on_touch_up=self.fall)
@@ -196,7 +157,7 @@ class Game(Widget):
 
         self.parent.remove_widget(instance)
         self.clear_widgets()
-        self.player = Player()
+        self.bee = Bee()
         self.obstacles = []
         self.power_ups = []
         self.theme_song.play()
@@ -205,19 +166,19 @@ class Game(Widget):
             center_x=Window.width / 2, top=Window.height - 20, text="Score: 0"
         )
         self.add_widget(self.score_label)
-        self.add_widget(self.player)
+        self.add_widget(self.bee)
         Clock.schedule_interval(self.update, 1.0 / 60.0)
         Clock.schedule_interval(self.txupdate, 0)
 
     def update(self, *args):
         """
-        Updates the game by updating the player and obstacles.
+        Updates the game by updating the bee and obstacles.
 
         Adds obstacles to the screen and also updates the score.
         """
 
         del args
-        self.player.update()
+        self.bee.update()
 
         # small change for a power up to pop up on the screen
         if random.randint(0, 1400) == 0 and len(self.power_ups) < 1:
@@ -230,7 +191,7 @@ class Game(Widget):
             if power_up.pos[0] < -power_up.size[0]:
                 self.remove_widget(power_up)
                 self.power_ups.remove(power_up)
-            # include invincible state for a player for 4s
+            # include invincible state for bee for 4s
 
         obstacles = self.score / 30 or 1
         obstacles = min(obstacles, MAX_OBSTACLES)
@@ -247,15 +208,15 @@ class Game(Widget):
                 self.remove_widget(obstacle)
                 self.obstacles.remove(obstacle)
             if (
-                self.player.pos[0] > obstacle.pos[0] + obstacle.size[0]
+                self.bee.pos[0] > obstacle.pos[0] + obstacle.size[0]
                 and obstacle not in obstacle.passed_obstacles
             ):
                 self.score += 1
                 obstacle.passed_obstacles.append(obstacle)
                 self.score_label.text = f"Score: {self.score}"
             if (
-                self.player.collide_widget(obstacle)
-                or self.player.pos[1] < -self.player.size[1]
+                self.bee.check_collision(obstacle)
+                or self.bee.pos[1] < -self.bee.size[1]
             ):
                 Clock.unschedule(self.update)
                 Clock.unschedule(self.txupdate)
@@ -265,18 +226,17 @@ class Game(Widget):
                 self.show_restart_button()
                 self.show_highscore_label()
 
-
     def fly(self, *args):
-        """Activates flying mode for the player."""
+        """Activates flying mode for the bee."""
 
         del args
-        self.player.fly()
+        self.bee.fly()
 
     def fall(self, *args):
-        """Activates fall mode for the player."""
+        """Activates fall mode for the bee."""
 
         del args
-        self.player.fall()
+        self.bee.fall()
 
     def show_restart_button(self):
         """Adds the restart button after a game over."""

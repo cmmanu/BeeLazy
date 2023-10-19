@@ -1,13 +1,19 @@
+"""Implements the bee with its animation."""
+
 from kivy.core.window import Window
-from kivy.graphics import Rectangle
 from kivy.uix.image import Image
 from kivy.core.image import Image as CoreImage
 from kivy.clock import Clock
 
 
 class Bee(Image):
+    """The main protoganist of the game which is a bee.
+
+    The bee is an animated spritesheet that must not coolide with obstacles.
+    """
+
     def __init__(self, **kwargs):
-        super(Bee, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.size = (260, 260)
         self.velocity = [0, 0]
         self.score = 0
@@ -21,48 +27,51 @@ class Bee(Image):
         Clock.schedule_interval(self.update_frame, self.anim_delay)
 
     def load_spritesheet(self):
-        # Load spritesheet image and split it into individual frames
+        """Load spritesheet image and split it into individual frames."""
+
         texture = CoreImage("./assets/bee.png").texture
         cols, rows = 2, 4  # 2x4 grid of frames in the spritesheet
         frame_width, frame_height = texture.width / cols, texture.height / rows
 
         for row in range(rows):
             for col in range(cols):
-                x = col * frame_width
+                x_axis = col * frame_width
                 # Invert y-axis to match Kivy's coordinate system
-                y = (rows - row - 1) * frame_height
-                frame = texture.get_region(x, y, frame_width, frame_height)
+                y_axis = (rows - row - 1) * frame_height
+                frame = texture.get_region(x_axis, y_axis, frame_width, frame_height)
                 self.frames.append(frame)
 
         self.texture = self.frames[
             self.frame_idx
         ]  # Set the initial frame as the texture
 
-    def update_frame(self, dt):
-        # Update the current frame index
+    def update_frame(self, arg):
+        """Update the current frame index."""
+
+        del arg
         self.frame_idx = (self.frame_idx + 1) % len(self.frames)
         self.texture = self.frames[self.frame_idx]
 
     def update_texture(self, instance, value):
-        # Update the texture when it changes
+        """Update the texture when it changes."""
+        del instance, value
         self.texture = self.frames[self.frame_idx]
 
-    def check_collision(self, other):
+    def check_collision(self, other) -> bool:
+        """Checks if the bee collided with an obstacle."""
+
         sprite_x, sprite_y = self.pos
         sprite_width, sprite_height = self.size
         rect_x, rect_y = other.pos
         rect_width, rect_height = other.size
 
         # Check for overlap of visible parts
-        if (
+        return (
             sprite_x < rect_x + rect_width
-            and sprite_x + sprite_width - 70 > rect_x
-            and sprite_y < rect_y + rect_height - 70
-            and sprite_y + sprite_height > rect_y
-        ):
-            return True
-        else:
-            return False
+            and sprite_x + sprite_width - 100 > rect_x
+            and sprite_y < rect_y + rect_height - 100
+            and sprite_y + sprite_height - 100 > rect_y
+        )
 
     def update(self):
         """Updates the bees position."""

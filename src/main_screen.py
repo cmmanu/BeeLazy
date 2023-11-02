@@ -1,7 +1,9 @@
 """Implements classes of the main screen of the game."""
 
+import collections
 import os
 import random
+import typing
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -33,12 +35,13 @@ class Obstacle(Widget):
 
     sizes = [(50, 50), (50, 100), (50, 150)]
 
-    def __init__(self, **kwargs):
+    def __init__(self, y: int | None = None, **kwargs):
         super().__init__(**kwargs)
         self.size = self.sizes[random.randint(0, len(self.sizes) - 1)]
-        self.passed_obstacles = []
+        self.passed_obstacles: list[Obstacle] = []
         self.velocity = 5
-        self.pos = (Window.width, random.randint(50, Window.height - 50))
+        y_pos = y if y else random.randint(50, Window.height - 50)
+        self.pos = (Window.width, y_pos)
         with self.canvas:
             self.color = Color(1, 0, 0)
             self.rect = Rectangle(pos=self.pos, size=self.size)
@@ -81,6 +84,7 @@ class Game(Widget):
     obstacles: list[Obstacle] = []
     power_ups: list[PowerUp] = []
     theme_song = None
+    last_positions: typing.Deque = collections.deque(maxlen=5)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -193,10 +197,20 @@ class Game(Widget):
                 self.power_ups.remove(power_up)
             # include invincible state for bee for 4s
 
+        self.last_positions.append(self.bee.pos[1])
+
+        if all(
+            pos == self.last_positions[0] or abs(self.last_positions[0] - pos) <= 5
+            for pos in self.last_positions
+        ):
+            y_pos = self.bee.pos[1]
+        else:
+            y_pos = None
+
         obstacles = self.score / 30 or 1
         obstacles = min(obstacles, MAX_OBSTACLES)
         if len(self.obstacles) < obstacles:
-            new_obstacle = Obstacle()
+            new_obstacle = Obstacle(y_pos)
             reinforcement = (self.score / 100) + 1
             new_obstacle.velocity = reinforcement * random.randint(10, 20)
             self.obstacles.append(new_obstacle)
@@ -224,7 +238,7 @@ class Game(Widget):
                 self.theme_song.stop()
                 self.save_highscores()
                 self.show_restart_button()
-                self.show_highscore_label()
+                self.show_highscore_label(self.score)
 
     def fly(self, *args):
         """Activates flying mode for the bee."""
@@ -246,19 +260,38 @@ class Game(Widget):
             size_hint=(None, None),
             size=(200, 100),
             pos=(Window.width / 2 - 100, Window.height / 3),
+            outline_color=(0, 0, 0, 1),
+            outline_width=2,
         )
         self.restart_button.bind(on_press=self.restart_game)  # Bind on_release event
         self.parent.add_widget(self.restart_button)
 
-    def show_highscore_label(self):
+    def show_highscore_label(self, current_score: int | None = None):
         """Adds the highscore label in game."""
 
         # Display highscores
         self.highscore_label = Label(
-            center_x=Window.width / 2, top=Window.height / 1.5, text="Highscores:\n"
+            center_x=Window.width / 2,
+            top=Window.height / 1.5,
+            text="Highscores:\n",
+            color=(1, 1, 1, 1),
+            font_size="24sp",
+            outline_color=(0, 0, 0, 1),
+            outline_width=3,
+            markup=True,
         )
+
+        highscore_marked = False
         for i, score in enumerate(self.highscores):
-            self.highscore_label.text += f"{i + 1}. {score}\n"
+            if score == current_score and not highscore_marked:
+                self.highscore_label.text += (
+                    f"[color=#FFFF00]      {i + 1}. {score}[/color]\n"
+                )
+                highscore_marked = True
+                continue
+            if i < 5:
+                self.highscore_label.text += f"      {i + 1}. {score}\n"
+
         self.add_widget(self.highscore_label)
 
     def remove_highscore_label(self):
@@ -283,7 +316,7 @@ class Game(Widget):
         # Update highscores
         self.highscores.append(self.score)
         self.highscores.sort(reverse=True)
-        self.highscores = self.highscores[:5]  # Keep only the top 5 scores
+        self.highscores = self.highscores[:1000]  # Keep only the top 100 scores
 
         self.store.put("scores", scores=self.highscores)
 

@@ -21,18 +21,22 @@ class StartScreen(Widget):
         self.back_callback = back_callback
 
         self.start_button = Button(
-            text="Start Game",
+            text="Start",
             size_hint=(None, None),
             size=(250, 100),
             pos=(Window.width / 2 - 100, Window.height / 3 - 25),
+            outline_color=(0, 0, 0, 1),
+            outline_width=2,
         )
         self.start_button.bind(on_release=self.start_game)
 
         self.highscore_button = Button(
-            text="Show Highscore",
+            text="Highscores",
             size_hint=(None, None),
             size=(250, 100),
             pos=(Window.width / 2 - 100, Window.height / 3 - 150),
+            outline_color=(0, 0, 0, 1),
+            outline_width=2,
         )
         self.highscore_button.bind(on_release=self.show_highscore)
 
@@ -41,6 +45,8 @@ class StartScreen(Widget):
             size_hint=(None, None),
             size=(250, 100),
             pos=(Window.width / 2 - 100, Window.height / 3 - 150),
+            outline_color=(0, 0, 0, 1),
+            outline_width=2,
         )
         self.back_button.bind(on_release=self.create_start_screen)
 
@@ -59,7 +65,7 @@ class StartScreen(Widget):
             if max_width > self.text_width:
                 self.text_width = max_width
             child.size_hint_x = None
-            child.width = self.text_width + 30
+            child.width = self.text_width + 60
 
     def create_start_screen(self, *args):
         """Creates the start screen on start up."""

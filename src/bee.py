@@ -1,9 +1,9 @@
 """Implements the bee with its animation."""
 
+from kivy.clock import Clock
+from kivy.core.image import Image as CoreImage
 from kivy.core.window import Window
 from kivy.uix.image import Image
-from kivy.core.image import Image as CoreImage
-from kivy.clock import Clock
 
 
 class Bee(Image):
@@ -81,8 +81,8 @@ class Bee(Image):
         new_x_pos = self.pos[0] + self.velocity[0]
         new_y_pos = self.pos[1] + self.velocity[1]
         # check if max height is reached
-        if new_y_pos >= Window.height - self.size[1]:
-            new_y_pos = Window.height - self.size[1]
+        if new_y_pos >= Window.height - self.size[1] / 2:
+            new_y_pos = Window.height - self.size[1] / 2
         self.pos = (new_x_pos, new_y_pos)
 
     def fly(self):

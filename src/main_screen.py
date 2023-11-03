@@ -149,6 +149,7 @@ class Game(Widget):
         Clock.schedule_interval(self.update, 1.0 / 60.0)
         self.bind(on_touch_down=self.fly)
         self.bind(on_touch_up=self.fall)
+        self.bind(on_touch_move=self.move)
         self.load_highscores()
 
     def remove_start_screen(self):
@@ -234,6 +235,7 @@ class Game(Widget):
             ):
                 Clock.unschedule(self.update)
                 Clock.unschedule(self.txupdate)
+                self.remove_widget(self.bee)
                 self.score_label.text = "Game over!"
                 self.theme_song.stop()
                 self.save_highscores()
@@ -251,6 +253,10 @@ class Game(Widget):
 
         del args
         self.bee.fall()
+
+    def move(self, *args):
+        """Activates move mode for the bee."""
+        self.bee.move(args)
 
     def show_restart_button(self):
         """Adds the restart button after a game over."""

@@ -92,7 +92,7 @@ class Bee(Image):
             self.velocity[1] -= 0.5  # apply gravity
 
         self.last_positions.append(self.pos[1])
-        # when the y position stays the same we will falll
+        # when the y position stays the same we will fall
         if all(pos == self.last_positions[0] for pos in self.last_positions):
             self.fall()
 

@@ -10,7 +10,7 @@ abyss.
 The goal is to pass as many obstacles as possible and to crack the highscore.
 
 ## Code quality
-- the coverage should be at least 80%
+- the coverage should be at least 80% (TODO)
 - negative and positive test cases should be tested
 - formatting the code with black
 - static code analysis with mypy and pylint

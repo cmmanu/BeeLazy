@@ -9,6 +9,7 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.audio import SoundLoader
 from kivy.core.window import Window
+
 from kivy.graphics import Color, Rectangle
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.button import Button
@@ -24,6 +25,9 @@ GROUND_HEIGHT = 100
 
 MAX_OBSTACLES = 5
 """The maximum number of obstacles in one screen."""
+
+TOP_TEXT = Window.height - Window.height * 0.02
+"""Top text position."""
 
 
 class Obstacle(Widget):
@@ -141,9 +145,7 @@ class Game(Widget):
 
         Clock.schedule_interval(self.txupdate, 0)
         self.remove_widget(self.start_screen)
-        self.score_label = Label(
-            center_x=Window.width / 2, top=Window.height - 20, text="Score: 0"
-        )
+        self.init_score_label()
         self.add_widget(self.score_label)
         self.add_widget(self.bee)
         Clock.schedule_interval(self.update, 1.0 / 60.0)
@@ -151,6 +153,13 @@ class Game(Widget):
         self.bind(on_touch_up=self.fall)
         self.bind(on_touch_move=self.move)
         self.load_highscores()
+
+    def init_score_label(self):
+        """Initializes the score label with its postion and text."""
+
+        self.score_label = Label(
+            center_x=Window.width / 2, top=TOP_TEXT, text="Score: 0"
+        )
 
     def remove_start_screen(self):
         """Removes the start screen as widget."""
@@ -167,9 +176,7 @@ class Game(Widget):
         self.power_ups = []
         self.theme_song.play()
         self.score = 0
-        self.score_label = Label(
-            center_x=Window.width / 2, top=Window.height - 20, text="Score: 0"
-        )
+        self.init_score_label()
         self.add_widget(self.score_label)
         self.add_widget(self.bee)
         Clock.schedule_interval(self.update, 1.0 / 60.0)
@@ -265,7 +272,7 @@ class Game(Widget):
             text="Retry",
             size_hint=(None, None),
             size=(200, 100),
-            pos=(Window.width / 2 - 100, Window.height / 3),
+            pos=(Window.width / 2 - 100, Window.height / 3 - 150),
             outline_color=(0, 0, 0, 1),
             outline_width=2,
         )
@@ -278,7 +285,6 @@ class Game(Widget):
         # Display highscores
         self.highscore_label = Label(
             center_x=Window.width / 2,
-            top=Window.height / 1.5,
             text="Highscores:\n",
             color=(1, 1, 1, 1),
             font_size="24sp",
@@ -298,6 +304,8 @@ class Game(Widget):
             if i < 5:
                 self.highscore_label.text += f"      {i + 1}. {score}\n"
 
+        offset = self.score_label.size[1] if self.score_label else 0
+        self.highscore_label.top = TOP_TEXT - 3 * self.highscore_label.size[1] - offset
         self.add_widget(self.highscore_label)
 
     def remove_highscore_label(self):

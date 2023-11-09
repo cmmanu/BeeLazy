@@ -9,7 +9,6 @@ from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.audio import SoundLoader
 from kivy.core.window import Window
-
 from kivy.graphics import Color, Rectangle
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.button import Button
@@ -89,6 +88,7 @@ class Game(Widget):
     power_ups: list[PowerUp] = []
     theme_song = None
     last_positions: typing.Deque = collections.deque(maxlen=5)
+    game_over = False
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -169,6 +169,7 @@ class Game(Widget):
     def restart_game(self, instance):
         """Restarts the game by clearing and resetting everything."""
 
+        self.game_over = False
         self.parent.remove_widget(instance)
         self.clear_widgets()
         self.bee = Bee()
@@ -192,6 +193,10 @@ class Game(Widget):
         del args
         self.bee.update()
 
+        def timeout_function(arg):
+            del arg
+            self.bee.invincible = False
+
         # small change for a power up to pop up on the screen
         if random.randint(0, 1400) == 0 and len(self.power_ups) < 1:
             new_powerup = PowerUp()
@@ -203,7 +208,11 @@ class Game(Widget):
             if power_up.pos[0] < -power_up.size[0]:
                 self.remove_widget(power_up)
                 self.power_ups.remove(power_up)
-            # include invincible state for bee for 4s
+            if self.bee.check_collision(power_up):
+                self.bee.invincible = True
+                self.remove_widget(power_up)
+                Clock.schedule_once(timeout_function, timeout=5)
+                # add powerup color and remove other powerups if already gained
 
         self.last_positions.append(self.bee.pos[1])
 
@@ -239,7 +248,9 @@ class Game(Widget):
             if (
                 self.bee.check_collision(obstacle)
                 or self.bee.pos[1] < -self.bee.size[1]
+                and not self.game_over
             ):
+                self.game_over = True
                 Clock.unschedule(self.update)
                 Clock.unschedule(self.txupdate)
                 self.remove_widget(self.bee)

@@ -18,6 +18,7 @@ class Bee(Image):
 
     old_move_pos = None
     last_positions: typing.Deque = collections.deque(maxlen=10)
+    invincible = False
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -79,6 +80,7 @@ class Bee(Image):
             and sprite_x + sprite_width - HITBOX_OFFSET > rect_x
             and sprite_y < rect_y + rect_height - HITBOX_OFFSET
             and sprite_y + sprite_height - HITBOX_OFFSET > rect_y
+            and not self.invincible
         )
 
     def update(self):

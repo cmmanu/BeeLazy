@@ -32,7 +32,4 @@ jobs:
     - name: Run tests
       run: |
         source .venv/bin/activate
-        poetry run pytest --cov --cov-report=xml --disable-warnings
-      # report stack traces for errors in tests
-      env:
-        PYTEST_ADDOPTS: --show-capture=all
+        poetry run pytest --verbose

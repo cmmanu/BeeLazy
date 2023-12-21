@@ -13,6 +13,16 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.11
+    - name: Install untuntu packages
+      run: |
+        sudo apt-get update
+        sudo apt-get update
+        sudo apt-get -y install build-essential git make autoconf automake libtool \
+        pkg-config cmake ninja-build libasound2-dev libpulse-dev libaudio-dev \
+        libjack-dev libsndio-dev libsamplerate0-dev libx11-dev libxext-dev \
+        libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libwayland-dev \
+        libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+        libegl1-mesa-dev libdbus-1-dev libibus-1.0-dev libudev-dev fcitx-libs-dev
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -20,6 +30,9 @@ jobs:
         python -m venv .venv
         source .venv/bin/activate
         poetry install
+    - name: Print contents of repo
+      run: |
+        ls -la
     - name: Analysing the code with pylint
       if: success() 
       run: |
@@ -32,4 +45,4 @@ jobs:
     - name: Run tests
       run: |
         source .venv/bin/activate
-        poetry run pytest --verbose
+        poetry run pytest tests --cov --cov-report=xml --verbose -p no:warnings

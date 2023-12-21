@@ -183,6 +183,11 @@ class Game(Widget):
         Clock.schedule_interval(self.update, 1.0 / 60.0)
         Clock.schedule_interval(self.txupdate, 0)
 
+    def timeout_power_up(self, arg):
+        """Timeout function for the power up."""
+        del arg
+        self.bee.invincible = False
+
     def update(self, *args):
         """
         Updates the game by updating the bee and obstacles.
@@ -192,10 +197,6 @@ class Game(Widget):
 
         del args
         self.bee.update()
-
-        def timeout_function(arg):
-            del arg
-            self.bee.invincible = False
 
         # small change for a power up to pop up on the screen
         if random.randint(0, 1400) == 0 and len(self.power_ups) < 1:
@@ -211,7 +212,7 @@ class Game(Widget):
             if self.bee.check_collision(power_up):
                 self.bee.invincible = True
                 self.remove_widget(power_up)
-                Clock.schedule_once(timeout_function, timeout=5)
+                Clock.schedule_once(self.timeout_power_up, timeout=5)
                 # add powerup color and remove other powerups if already gained
 
         self.last_positions.append(self.bee.pos[1])

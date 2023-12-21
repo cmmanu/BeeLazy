@@ -5,6 +5,6 @@ set -o pipefail
 
 black .
 isort .
-#pytest --cov --cov-report=term-missing --cov-report=xml:coverage.xml
+pytest --cov --cov-report=term-missing --cov-report=xml:coverage.xml
 mypy --install-types --non-interactive src
 pylint src

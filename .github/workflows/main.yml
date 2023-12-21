@@ -1,4 +1,4 @@
-name: Python linting and type checking with Pylint and Mypy
+name: Check pipeline
 
 on: [push]
 
@@ -32,4 +32,4 @@ jobs:
     - name: Run tests
       run: |
         source .venv/bin/activate
-        poetry run pytest --cov --cov-report=xml
+        poetry run pytest --cov --cov-report=xml --disable-warnings

@@ -17,6 +17,7 @@ from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 
 from src.bee import Bee
+from src.invincible_effect import InvincibleEffect
 from src.start_screen import StartScreen
 
 GROUND_HEIGHT = 100
@@ -103,6 +104,7 @@ class Game(Widget):
             highscore_callback=self.show_highscore_label,
             back_callback=self.remove_highscore_label,
         )
+        self.invincible_effect = InvincibleEffect(self.bee)
         self.add_widget(self.start_screen)
         with self.canvas.before:
             self.img = Image(
@@ -187,8 +189,11 @@ class Game(Widget):
         """Timeout function for the power up."""
         del arg
         self.bee.invincible = False
+        self.remove_widget(self.invincible_effect)
 
-    def update(self, *args):
+    def update(
+        self, *args
+    ):  # pylint: disable=too-many-statements  # main update method
         """
         Updates the game by updating the bee and obstacles.
 
@@ -198,8 +203,15 @@ class Game(Widget):
         del args
         self.bee.update()
 
+        if self.bee.invincible:
+            self.invincible_effect.update(self.bee)
+            self.invincible_effect.draw_glitter()
         # small change for a power up to pop up on the screen
-        if random.randint(0, 1400) == 0 and len(self.power_ups) < 1:
+        if (
+            random.randint(0, 1400) == 0
+            and len(self.power_ups) < 1
+            and not self.bee.invincible
+        ):
             new_powerup = PowerUp()
             self.power_ups.append(new_powerup)
             self.add_widget(new_powerup)
@@ -212,8 +224,10 @@ class Game(Widget):
             if self.bee.check_collision(power_up):
                 self.bee.invincible = True
                 self.remove_widget(power_up)
-                Clock.schedule_once(self.timeout_power_up, timeout=5)
-                # add powerup color and remove other powerups if already gained
+                Clock.schedule_once(self.timeout_power_up, timeout=8)
+                # Add the sprite and Fbo to the widget
+                self.invincible_effect.update(self.bee)
+                self.add_widget(self.invincible_effect)
 
         self.last_positions.append(self.bee.pos[1])
 

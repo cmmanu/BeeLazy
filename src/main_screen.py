@@ -4,6 +4,7 @@ import collections
 import os
 import random
 import typing
+import src.obstacle
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -85,7 +86,7 @@ class Game(Widget):
     """
 
     bee = Bee()
-    obstacles: list[Obstacle] = []
+    obstacles: list[src.obstacle.Obstacle] = []
     power_ups: list[PowerUp] = []
     theme_song = None
     last_positions: typing.Deque = collections.deque(maxlen=5)
@@ -243,7 +244,7 @@ class Game(Widget):
         obstacles = self.score / 30 or 1
         obstacles = min(obstacles, MAX_OBSTACLES)
         if len(self.obstacles) < obstacles:
-            new_obstacle = Obstacle(y_pos)
+            new_obstacle = src.obstacle.Obstacle(y_pos)
             reinforcement = (self.score / 100) + 1
             new_obstacle.velocity = reinforcement * random.randint(10, 20)
             self.obstacles.append(new_obstacle)

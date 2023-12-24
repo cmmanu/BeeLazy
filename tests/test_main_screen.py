@@ -120,6 +120,7 @@ class TestMainScreen(unittest.TestCase):
         self.game.score = 0
         self.game.score_label = Label()
         self.game.game_over = False
+        self.game.bee.invincible = True
 
         self.game.update()
 

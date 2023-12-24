@@ -206,6 +206,7 @@ class Game(Widget):
         if self.bee.invincible:
             self.invincible_effect.update(self.bee)
             self.invincible_effect.draw_glitter()
+
         # small change for a power up to pop up on the screen
         if (
             random.randint(0, 1400) == 0

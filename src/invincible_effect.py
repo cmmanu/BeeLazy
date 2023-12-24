@@ -19,11 +19,6 @@ class InvincibleEffect(Widget):
         self.ellipse = Ellipse(pos=self.pos, size=self.size)
         self.glitters: list[Line] = []
 
-    def draw(self):
-        """Draws the invincible effect with glitter."""
-        super().draw()  # Call the base class draw method for the invincible effect
-        self.draw_glitter()
-
     def draw_glitter(self):
         """Draws glitter around the invincible effect."""
         num_glitters = 10

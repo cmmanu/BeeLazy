@@ -4,7 +4,6 @@ import collections
 import os
 import random
 import typing
-import src.obstacle
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -19,6 +18,7 @@ from kivy.uix.widget import Widget
 
 from src.bee import Bee
 from src.invincible_effect import InvincibleEffect
+from src.obstacle import Obstacle
 from src.start_screen import StartScreen
 
 GROUND_HEIGHT = 100
@@ -29,32 +29,6 @@ MAX_OBSTACLES = 5
 
 TOP_TEXT = Window.height - Window.height * 0.02
 """Top text position."""
-
-
-class Obstacle(Widget):
-    """The obstacle for the bee to doge.
-
-    Obstacles will appear on the right side of the screen. The main goal for the bee is to pass
-    these obstacles.
-    """
-
-    sizes = [(50, 50), (50, 100), (50, 150)]
-
-    def __init__(self, y: int | None = None, **kwargs):
-        super().__init__(**kwargs)
-        self.size = self.sizes[random.randint(0, len(self.sizes) - 1)]
-        self.passed_obstacles: list[Obstacle] = []
-        self.velocity = 5
-        y_pos = y if y else random.randint(50, Window.height - 50)
-        self.pos = (Window.width, y_pos)
-        with self.canvas:
-            self.color = Color(1, 0, 0)
-            self.rect = Rectangle(pos=self.pos, size=self.size)
-
-    def update(self):
-        """Updates the postion of the obstacle."""
-        self.pos = (self.pos[0] - self.velocity, self.pos[1])
-        self.rect.pos = self.pos
 
 
 class PowerUp(Widget):
@@ -86,7 +60,7 @@ class Game(Widget):
     """
 
     bee = Bee()
-    obstacles: list[src.obstacle.Obstacle] = []
+    obstacles: list[Obstacle] = []
     power_ups: list[PowerUp] = []
     theme_song = None
     last_positions: typing.Deque = collections.deque(maxlen=5)
@@ -244,7 +218,7 @@ class Game(Widget):
         obstacles = self.score / 30 or 1
         obstacles = min(obstacles, MAX_OBSTACLES)
         if len(self.obstacles) < obstacles:
-            new_obstacle = src.obstacle.Obstacle(y_pos)
+            new_obstacle = Obstacle(y_pos)
             reinforcement = (self.score / 100) + 1
             new_obstacle.velocity = reinforcement * random.randint(10, 20)
             self.obstacles.append(new_obstacle)

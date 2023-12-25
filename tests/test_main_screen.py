@@ -15,30 +15,7 @@ from kivy.uix.widget import Widget
 
 from src.bee import Bee
 from src.main_screen import TOP_TEXT, BeeLazy, Game, Obstacle, PowerUp
-
-
-class TestObstacle(unittest.TestCase):
-    def setUp(self):
-        self.obstacle = Obstacle()
-
-    def test_init(self):
-        self.assertIsInstance(self.obstacle, Widget)
-        self.assertIn(tuple(self.obstacle.size), Obstacle.sizes)
-        self.assertIsInstance(self.obstacle.passed_obstacles, list)
-        self.assertEqual(self.obstacle.velocity, 5)
-        self.assertGreaterEqual(self.obstacle.pos[0], 0)
-        self.assertLessEqual(self.obstacle.pos[0], Window.width)
-        self.assertGreaterEqual(self.obstacle.pos[1], 50)
-        self.assertLessEqual(self.obstacle.pos[1], Window.height - 50)
-        self.assertIsInstance(self.obstacle.color, Color)
-        self.assertIsInstance(self.obstacle.rect, Rectangle)
-
-    def test_update(self):
-        initial_pos = self.obstacle.pos
-        self.obstacle.update()
-        self.assertEqual(self.obstacle.pos[0], initial_pos[0])
-        self.assertEqual(self.obstacle.pos[1], initial_pos[1])
-        self.assertEqual(self.obstacle.rect.pos, tuple(self.obstacle.pos))
+from src.obstacle import Obstacle
 
 
 class TestPowerUp(unittest.TestCase):

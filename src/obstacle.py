@@ -6,7 +6,9 @@ from kivy.core.image import Image as CoreImage
 from kivy.core.window import Window
 from kivy.uix.image import Image
 
+
 class Obstacle(Image):
+    """Implements the Obstacle with its animation."""
 
     def __init__(self, y: int | None = None, **kwargs):
         super().__init__(**kwargs)
@@ -15,7 +17,7 @@ class Obstacle(Image):
         self.velocity = 5
         y_pos = y if y else random.randint(50, Window.height - 50)
         self.pos = (Window.width, y_pos)
-        self.frames = []
+        self.frames: list = []
         self.frame_idx = 0
         self.anim_delay = 0.1
         self.load_spritesheet()
@@ -42,14 +44,14 @@ class Obstacle(Image):
         ]  # Set the initial frame as the texture
 
     def update_frame(self, arg):
-        """Update the current frame index."""
+        """Update the current frame index of the Obstacle."""
 
         del arg
         self.frame_idx = (self.frame_idx + 1) % len(self.frames)
         self.texture = self.frames[self.frame_idx]
 
     def update_texture(self, instance, value):
-        """Update the texture when it changes."""
+        """Update the texture of the Obstacle when it changes."""
         del instance, value
         self.texture = self.frames[self.frame_idx]
 

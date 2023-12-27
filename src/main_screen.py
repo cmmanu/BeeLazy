@@ -18,6 +18,7 @@ from kivy.uix.widget import Widget
 
 from src.bee import Bee
 from src.invincible_effect import InvincibleEffect
+from src.obstacle import Obstacle
 from src.start_screen import StartScreen
 
 GROUND_HEIGHT = 100
@@ -28,32 +29,6 @@ MAX_OBSTACLES = 5
 
 TOP_TEXT = Window.height - Window.height * 0.02
 """Top text position."""
-
-
-class Obstacle(Widget):
-    """The obstacle for the bee to doge.
-
-    Obstacles will appear on the right side of the screen. The main goal for the bee is to pass
-    these obstacles.
-    """
-
-    sizes = [(50, 50), (50, 100), (50, 150)]
-
-    def __init__(self, y: int | None = None, **kwargs):
-        super().__init__(**kwargs)
-        self.size = self.sizes[random.randint(0, len(self.sizes) - 1)]
-        self.passed_obstacles: list[Obstacle] = []
-        self.velocity = 5
-        y_pos = y if y else random.randint(50, Window.height - 50)
-        self.pos = (Window.width, y_pos)
-        with self.canvas:
-            self.color = Color(1, 0, 0)
-            self.rect = Rectangle(pos=self.pos, size=self.size)
-
-    def update(self):
-        """Updates the postion of the obstacle."""
-        self.pos = (self.pos[0] - self.velocity, self.pos[1])
-        self.rect.pos = self.pos
 
 
 class PowerUp(Widget):
@@ -108,7 +83,7 @@ class Game(Widget):
         self.add_widget(self.start_screen)
         with self.canvas.before:
             self.img = Image(
-                source="assets/background2.jpg", allow_stretch=True, keep_ratio=False
+                source="assets/new_bg.jpg", allow_stretch=True, keep_ratio=False
             )
             self.texture = self.img.texture
             self.texture.wrap = "repeat"

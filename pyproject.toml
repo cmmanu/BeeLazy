@@ -24,6 +24,7 @@ build-backend = "poetry.core.masonry.api"
 disable = [
     "no-member",
     "too-many-instance-attributes",
+    "duplicate-code",
 ]
 
 [tool.coverage.report]

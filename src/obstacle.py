@@ -15,7 +15,7 @@ class Obstacle(Image):
         self.size = (260, 260)
         self.passed_obstacles: list[Obstacle] = []
         self.velocity = 5
-        y_pos = y if y else random.randint(50, Window.height - 50)
+        y_pos = y if y else random.randint(50, Window.height - self.size[1] / 2)
         self.pos = (Window.width, y_pos)
         self.frames: list = []
         self.frame_idx = 0
@@ -26,18 +26,36 @@ class Obstacle(Image):
 
     def load_spritesheet(self):
         """Load spritesheet image and split it into individual frames."""
+        sprites = [
+            {
+                "texture": CoreImage("./assets/bird.png").texture,
+                "cols": 6,
+                "rows": 1,
+                "offset": 35,
+            },
+            {
+                "texture": CoreImage("./assets/schwalbe2.png").texture,
+                "cols": 4,
+                "rows": 2,
+                "offset": 0,
+            },
+        ]
 
-        texture = CoreImage("./assets/bird.png").texture
-        cols = 6  # 1x4 grid of frames in the spritesheet
-        rows = 1
-        frame_width, frame_height = texture.width / cols, texture.height
+        sprite = random.choice(sprites)
+        frame_width, frame_height = (
+            sprite["texture"].width / sprite["cols"],
+            sprite["texture"].height / sprite["rows"],
+        )
 
-        for col in range(cols):
-            x_axis = col * frame_width
-            # Invert y-axis to match Kivy's coordinate system
-            y_axis = (rows - 1) * frame_height
-            frame = texture.get_region(x_axis + 35, y_axis, frame_width, frame_height)
-            self.frames.append(frame)
+        for row in range(sprite["rows"]):
+            for col in range(sprite["cols"]):
+                x_axis = col * frame_width
+                # Invert y-axis to match Kivy's coordinate system
+                y_axis = (sprite["rows"] - row - 1) * frame_height
+                frame = sprite["texture"].get_region(
+                    x_axis + sprite["offset"], y_axis, frame_width, frame_height
+                )
+                self.frames.append(frame)
 
         self.texture = self.frames[
             self.frame_idx

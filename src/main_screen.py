@@ -83,7 +83,7 @@ class Game(Widget):
         self.add_widget(self.start_screen)
         with self.canvas.before:
             self.img = Image(
-                source="assets/background2.jpg", allow_stretch=True, keep_ratio=False
+                source="assets/new_bg.jpg", allow_stretch=True, keep_ratio=False
             )
             self.texture = self.img.texture
             self.texture.wrap = "repeat"

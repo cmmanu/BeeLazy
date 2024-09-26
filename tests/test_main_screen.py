@@ -4,17 +4,15 @@ from unittest.mock import patch
 
 from kivy.app import App
 from kivy.clock import Clock
-from kivy.core.audio import SoundLoader
 from kivy.core.window import Window
 from kivy.graphics import Color, Rectangle
-from kivy.storage.jsonstore import JsonStore
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 
 from src.bee import Bee
-from src.main_screen import TOP_TEXT, BeeLazy, Game, Obstacle, PowerUp
+from src.main_screen import TOP_TEXT, BeeLazy, Game, PowerUp
 from src.obstacle import Obstacle
 
 

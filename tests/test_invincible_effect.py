@@ -1,5 +1,4 @@
 import unittest
-from unittest.mock import patch
 
 from kivy.graphics import Ellipse, Line
 from kivy.uix.widget import Widget

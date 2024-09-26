@@ -6,6 +6,7 @@ authors = ["manuelboehm <manuel.boehm9892@web.de>"]
 
 [tool.poetry.dependencies]
 python = "^3.10.3"
+ruff = "^0.6.8"
 
 [tool.poetry.dev-dependencies]
 black = "^23.0.0"

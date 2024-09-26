@@ -1,4 +1,5 @@
 """Implements the Obstacle with its animation."""
+
 import random
 
 from kivy.clock import Clock

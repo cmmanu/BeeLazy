@@ -1,4 +1,5 @@
 """Implements the bee with its animation."""
+
 import collections
 import typing
 

@@ -1,4 +1,5 @@
 """This module contains the InvincibleEffect class."""
+
 import random
 
 from kivy.graphics import Color, Ellipse, Line

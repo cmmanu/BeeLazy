@@ -1,4 +1,5 @@
 """Implements classes of the start screen of the game."""
+
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.uix.button import Button

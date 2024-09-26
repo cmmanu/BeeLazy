@@ -1,8 +1,6 @@
 import unittest
 
-from kivy.core.window import Window
 from kivy.graphics.texture import TextureRegion
-from kivy.uix.image import Image
 
 from src.bee import Bee
 

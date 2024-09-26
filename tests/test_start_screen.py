@@ -1,6 +1,5 @@
 import unittest
 
-from kivy.clock import Clock
 from kivy.uix.button import Button
 
 from src.start_screen import StartScreen

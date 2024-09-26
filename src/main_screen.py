@@ -166,9 +166,7 @@ class Game(Widget):
         self.bee.invincible = False
         self.remove_widget(self.invincible_effect)
 
-    def update(
-        self, *args
-    ):  # pylint: disable=too-many-statements  # main update method
+    def update(self, *args):  # pylint: disable=too-many-statements  # main update method
         """
         Updates the game by updating the bee and obstacles.
 

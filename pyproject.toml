@@ -14,7 +14,7 @@ mypy = "^1.11"
 pylint = "^3.3.1"
 kivy = "^2.3.0"
 pytest = "^8.3.3"
-pytest-cov = "^4.0.0"
+pytest-cov = "^5.0.0"
 
 [tool.pylint.'MESSAGES CONTROL']
 disable = "consider-using-max-builtin,consider-using-min-builtin"

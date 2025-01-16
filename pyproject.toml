@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pythonproject"
+name = "BeeLazy"
 version = "0.1.0"
 description = ""
 authors = ["manuelboehm <manuel.boehm9892@web.de>"]

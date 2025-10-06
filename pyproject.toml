@@ -6,7 +6,7 @@ authors = ["manuelboehm <manuel.boehm9892@web.de>"]
 
 [tool.poetry.dependencies]
 python = "^3.10.3"
-ruff = "^0.13.2"
+ruff = "^0.13.3"
 
 [tool.poetry.dev-dependencies]
 isort = "^5.10.1"
